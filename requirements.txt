@@ -1,3 +1,11 @@
 flask
 flask_sqlalchemy
 flask_cors
+
+Need to do:
+    style
+        Map.html
+        base.html
+images for each restaurant (found in app.py) named exactly the same
+
+-Map logic works

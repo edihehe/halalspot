@@ -4,7 +4,7 @@
 .container { max-width: 980px; margin: 0 auto; padding: 20px; }
 
 /* Header */
-.site-header { background: #0b5563; color: white; padding: 16px 0; }
+.site-header { background: #093f4a; color: white; padding: 16px 0; }
 .brand { display: inline-block; margin: 0; font-size: 1.5rem; padding-left: 0.5rem; }
 .main-nav { float: right; }
 .main-nav a { color: white; text-decoration: none; margin-left: 16px; }
@@ -47,3 +47,6 @@ button:active { transform: translateY(1px); }
     .row { flex-direction: column; }
     .main-nav { float: none; margin-top: 10px; }
 }
+
+/* Images */
+.logo { height: 100px; width: 100px;}

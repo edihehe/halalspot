@@ -1,31 +1,34 @@
 """
 models/restaurant.py
 
-Restaurant model maps to a restaurants table in the database.
-Each instance is one restaurant row.
+Restaurant model maps to the restaurant table in the database.
 """
 
-from utils.db import db
+from utils.db import db  # Make sure this points to your SQLAlchemy instance
 
 class Restaurant(db.Model):
     __tablename__ = "restaurant"
 
     id = db.Column(db.Integer, primary_key=True)
-
-    # Basic fields
     name = db.Column(db.String(255), nullable=False)
     description = db.Column(db.Text)
     address = db.Column(db.String(255))
-
-    # Coordinates, used by the map
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)
-
-    # Additional metadata
     cuisine = db.Column(db.String(100))
     halal_status = db.Column(db.String(100))
     image_url = db.Column(db.String(255))
 
-    # NOTE: we do not define a relationship here explicitly (simple approach)
-    # If you want: reviews = db.relationship('Review', backref='restaurant', lazy=True)
-    # But for simplicity we will query reviews by restaurant_id in routes.
+    # Convert object to dictionary for JSON serialization
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "address": self.address,
+            "latitude": self.latitude,
+            "longitude": self.longitude,
+            "cuisine": self.cuisine,
+            "halal_status": self.halal_status,
+            "image_url": self.image_url
+        }

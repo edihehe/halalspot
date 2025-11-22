@@ -1,33 +1,42 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8" />
-    <title>HalalSpot</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <link rel="stylesheet" href="/static/css/style.css">
-</head>
-<body>
+    <head>
+        <meta charset="utf-8" />
+        <title>HalalSpot</title>
+        <link rel="icon" type="image/png" href="/static/images/logo.png" />
 
-<header class="site-header">
-    <div class="container">
-        <h1 class="brand"><a href="/">Halal Yelp</a></h1>
-        <nav class="main-nav">
-            <a href="/">Home</a>
-            <a href="/restaurants">Restaurants</a>
-            <a href="/restaurants/map">Map</a>
-        </nav>
-    </div>
-</header>
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <link
+            rel="stylesheet"
+            href="{{ url_for('static', filename='css/styles.css') }}"
+        />
+    </head>
+    <body>
+        <header class="site-header">
+            <div class="container">
+                <a href="/"
+                    ><img
+                        src="{{ url_for('static', filename='images/logo.png') }}"
+                        alt="logo"
+                        class="logo"
+                /></a>
 
-<main class="container">
-    {% block content %}{% endblock %}
-</main>
+                <nav class="main-nav">
+                    <a href="/">Home</a>
+                    <a href="/restaurants">Restaurants</a>
+                    <a href="/restaurants/map">Map</a>
+                    <a > Contact Us </a>
+                    
+                </nav>
+            </div>
+        </header>
 
-<footer class="site-footer">
-    <div class="container">
-        <small>Built with Flask — demo project</small>
-    </div>
-</footer>
+        <main class="container">{% block content %}{% endblock %}</main>
 
-</body>
+        <footer class="site-footer">
+            <div class="container">
+                <small>footer</small>
+            </div>
+        </footer>
+    </body>
 </html>

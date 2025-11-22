@@ -2,16 +2,22 @@
 {% block content %}
 <h2>Map — Halal Restaurants</h2>
 
+<!-- Leaflet CSS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+<!-- Map container -->
+<div id="map" style="height: 520px; border-radius: 8px; overflow: hidden"></div>
+
+<!-- Leaflet JS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<div id="map" style="height: 520px; border-radius: 8px; overflow: hidden;"></div>
-
-<!-- We pass restaurant data to JS using Jinja's tojson filter -->
+<!-- Pass restaurant data to JS safely -->
 <script>
-    // `restaurants` is a list of model objects; tojson converts to a JSON array of dicts
-    const restaurantsData = {{ restaurants , tojson }};
+    // Make restaurantsData global so map.js can see it
+    window.restaurantsData = {{ restaurants | tojson | safe }};
+    console.log("Restaurants data:", window.restaurantsData);
 </script>
 
+<!-- Your map JS -->
 <script src="/static/js/map.js"></script>
 {% endblock %}

@@ -50,7 +50,9 @@ def search_restaurants():
 def show_map():
     """
     Map view that shows all restaurants as markers.
-    The template uses `restaurants` data to render markers.
+    Convert Restaurant objects to dicts before passing to template.
     """
     restaurants = Restaurant.query.all()
-    return render_template("map.html", restaurants=restaurants)
+    # Convert SQLAlchemy objects to dicts for JSON serialization
+    restaurants_dicts = [r.to_dict() for r in restaurants]
+    return render_template("map.html", restaurants=restaurants_dicts)

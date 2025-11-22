@@ -1,17 +1,121 @@
-{% extends "base.html" %}
-{% block content %}
-<h2>Find halal restaurants near you</h2>
+{% extends "base.html" %} {% block content %}
+<div class="container">
+    <div class="left">
+        <div class="search-box">
+            <form action="/restaurants/search" method="get" class="search-form">
+                <input
+                    type="text"
+                    name="query"
+                    placeholder="Search by restaurant name or cuisine"
+                    value="{{ query if query is defined else '' }}"
+                />
+                <button type="submit">Search</button>
+            </form>
+        </div>
 
-<form action="/restaurants/search" class="search-form">
-    <input type="text" name="query" placeholder="Search by restaurant name or cuisine" />
-    <button type="submit">Search</button>
-</form>
+        <div class="query-box">
+            {% if restaurants is defined and restaurants|length > 0 %}
+            <div class="restaurant-list">
+                {% for r in restaurants %}
+                <article class="restaurant-card">
+                    <a
+                        href="{{ url_for('restaurants.get_restaurant', id=r.id) }}"
+                    >
+                        <img
+                            src="{{ r.image_url or url_for('static', filename='images/restraunt1.jpg') }}"
+                            alt="{{ r.name }}"
+                            class="card-img"
+                        />
+                    </a>
+                    <div class="card-body">
+                        <h3>
+                            <a
+                                href="{{ url_for('restaurants.get_restaurant', id=r.id) }}"
+                                >{{ r.name }}</a
+                            >
+                        </h3>
+                        <p class="muted">
+                            {{ r.cuisine }} — {{ r.halal_status }}
+                        </p>
+                        <p>{{ r.description }}</p>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% elif query is defined and query %}
+            <p>No restaurants matched "{{ query }}".</p>
+            {% else %}
+            <p>Query results will appear here.</p>
+            {% endif %}
+        </div>
+    </div>
 
-<section>
-    <h3>Quick links</h3>
-    <ul>
-        <li><a href="/restaurants">All restaurants</a></li>
-        <li><a href="/restaurants/map">Open map</a></li>
-    </ul>
-</section>
+    <div class="right">
+        <div class="map-box">
+            <h2>Explore Restaurants on the Map</h2>
+
+            <!-- Leaflet CSS/JS -->
+            <link
+                rel="stylesheet"
+                href="https://unpkg.com/leaflet/dist/leaflet.css"
+            />
+            <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+            <!-- Map container -->
+            <div
+                id="home-map"
+                style="height: 500px; border-radius: 8px; overflow: hidden"
+            ></div>
+
+            <!-- Pass restaurants data to JS -->
+            <script>
+                // Make sure you pass restaurants to the template in your route
+                const homeRestaurantsData = {{ restaurants | tojson | safe }};
+            </script>
+
+            <!-- Map JS -->
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    if (
+                        !homeRestaurantsData ||
+                        homeRestaurantsData.length === 0
+                    )
+                        return;
+
+                    const center = [
+                        homeRestaurantsData[0].latitude || 39.9526, // Philly latitude
+                        homeRestaurantsData[0].longitude || -75.1652, // Philly longitude
+                    ];
+                    const map = L.map("home-map").setView(center, 13);
+
+                    L.tileLayer(
+                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                        {
+                            maxZoom: 19,
+                            attribution: "&copy; OpenStreetMap contributors",
+                        }
+                    ).addTo(map);
+
+                    homeRestaurantsData.forEach((r) => {
+                        if (r.latitude && r.longitude) {
+                            const marker = L.marker([
+                                r.latitude,
+                                r.longitude,
+                            ]).addTo(map);
+                            marker.bindPopup(`
+                                <div style="min-width:200px">
+                                    <strong>${r.name}</strong><br/>
+                                    ${r.address || ""}<br/>
+                                    <a href="/restaurants/${
+                                        r.id
+                                    }">View details</a>
+                                </div>
+                            `);
+                        }
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</div>
 {% endblock %}

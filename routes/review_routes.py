@@ -17,27 +17,35 @@ def add_review(id):
     Accepts form data:
     - rating (int)
     - comment (text)
-    Then saves the review and redirects back to the restaurant page.
+    Saves the review and redirects back to the restaurant page.
     """
-    rating = request.form.get("rating")
-    comment = request.form.get("comment", "")
 
-    # Basic validation: ensure rating provided and between 1 and 5
+    # Get form data
+    rating = request.form.get("rating")
+    comment = request.form.get("comment", "").strip()  # remove extra spaces
+
+    # Validate rating
     try:
         rating_int = int(rating)
         if rating_int < 1 or rating_int > 5:
             raise ValueError("Rating must be 1-5")
-    except Exception:
-        # For simplicity we ignore flash messaging in templates; redirect back.
+    except (ValueError, TypeError):
+        flash("Invalid rating. Please submit a number between 1 and 5.", "error")
         return redirect(url_for("restaurants.get_restaurant", id=id))
 
+    # Optional: Validate comment length
+    if len(comment) > 500:
+        flash("Comment too long (max 500 characters).", "error")
+        return redirect(url_for("restaurants.get_restaurant", id=id))
+
+    # Create and save the review
     review = Review(
         restaurant_id=id,
         rating=rating_int,
         comment=comment
     )
-
     db.session.add(review)
     db.session.commit()
 
+    flash("Review added successfully!", "success")
     return redirect(url_for("restaurants.get_restaurant", id=id))
