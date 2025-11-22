@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Find halal restaurants near you</h2>
+
+<form action="/restaurants/search" class="search-form">
+    <input type="text" name="query" placeholder="Search by restaurant name or cuisine" />
+    <button type="submit">Search</button>
+</form>
+
+<section>
+    <h3>Quick links</h3>
+    <ul>
+        <li><a href="/restaurants">All restaurants</a></li>
+        <li><a href="/restaurants/map">Open map</a></li>
+    </ul>
+</section>
+{% endblock %}

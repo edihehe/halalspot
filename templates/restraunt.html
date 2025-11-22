@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="restaurant-detail">
+    <div class="row">
+        <div class="col-6">
+            <img src="{{ restaurant.image_url or '/static/images/placeholder.png' }}" alt="{{ restaurant.name }}" class="detail-img" />
+        </div>
+        <div class="col-6">
+            <h2>{{ restaurant.name }}</h2>
+            <p><strong>Address:</strong> {{ restaurant.address }}</p>
+            <p><strong>Cuisine:</strong> {{ restaurant.cuisine }}</p>
+            <p><strong>Halal status:</strong> {{ restaurant.halal_status }}</p>
+            <p>{{ restaurant.description }}</p>
+        </div>
+    </div>
+
+    <hr>
+
+    <section id="reviews">
+        <h3>Reviews</h3>
+        {% if reviews %}
+            {% for review in reviews %}
+                <div class="review">
+                    <div class="rating">⭐ {{ review.rating }}</div>
+                    <div class="comment">{{ review.comment }}</div>
+                    <div class="date muted">{{ review.date.strftime('%Y-%m-%d %H:%M') }}</div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p>No reviews yet — be the first to add one!</p>
+        {% endif %}
+    </section>
+
+    <hr>
+
+    <section id="add-review">
+        <h3>Add a review (anonymous)</h3>
+        <form action="/restaurants/{{ restaurant.id }}/reviews/add" method="POST" class="review-form">
+            <label for="rating">Rating</label>
+            <input type="number" id="rating" name="rating" min="1" max="5" required />
+
+            <label for="comment">Comment</label>
+            <textarea id="comment" name="comment" rows="4" required></textarea>
+
+            <button type="submit">Submit review</button>
+        </form>
+    </section>
+
+    <hr>
+
+    <a href="/restaurants/map" class="btn">Open in Map</a>
+</article>
+{% endblock %}

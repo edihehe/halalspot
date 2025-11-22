@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>
+    {% if query %}
+        Search results for "{{ query }}"
+    {% else %}
+        Restaurants
+    {% endif %}
+</h2>
+
+{% if restaurants %}
+    <div class="grid">
+    {% for r in restaurants %}
+        <article class="card">
+            <img src="{{ r.image_url or '/static/images/placeholder.png' }}" alt="{{ r.name }}" class="card-img" />
+            <div class="card-body">
+                <h3><a href="/restaurants/{{ r.id }}">{{ r.name }}</a></h3>
+                <p class="muted">{{ r.address }}</p>
+                <p>{{ r.cuisine }} • {{ r.halal_status }}</p>
+            </div>
+        </article>
+    {% endfor %}
+    </div>
+{% else %}
+    <p>No restaurants found.</p>
+{% endif %}
+{% endblock %}
