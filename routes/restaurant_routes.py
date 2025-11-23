@@ -31,7 +31,9 @@ def get_restaurant(id):
     """
     restaurant = Restaurant.query.get_or_404(id)
     # Fetch reviews associated with this restaurant
-    reviews = Review.query.filter_by(restaurant_id=id).order_by(Review.date.desc()).all()
+    # Order by date descending (most recent first)
+    from sqlalchemy import desc
+    reviews = Review.query.filter_by(restaurant_id=id).order_by(desc(Review.date)).all()
     # Fetch content/videos associated with this restaurant
     contents = Content.query.filter_by(restaurant_id=id).order_by(Content.created_at.desc()).all()
     contents_data = [c.to_dict() for c in contents]

@@ -41,64 +41,126 @@
 
     <div class="divider"></div>
 
-    <!-- Display Restaurants with Reviews -->
+    <!-- Display Restaurants with Average Ratings -->
     <div class="review-list">
-        <h2>All Reviews</h2>
-        {% if restaurants %}
-            {% for r in restaurants %}
-                <article class="restaurant-card review-card">
-                    <div class="restaurant-info">
-                        <h3>{{ r.name }}</h3>
-                        <p class="muted">{{ r.cuisine }} — {{ r.halal_status }}</p>
-                        <p>{{ r.description }}</p>
-                        {% if r.avg_rating %}
-                            <div class="rating-display">
-                                <span class="stars">
-                                    {% for i in range(1,6) %}
-                                        {% if i <= r.avg_rating|round(0,'floor') %}
-                                            ★
-                                        {% else %}
-                                            ☆
-                                        {% endif %}
-                                    {% endfor %}
-                                </span>
-                                <strong>Average Rating: {{ r.avg_rating }} / 5</strong>
-                            </div>
-                        {% else %}
-                            <p class="no-rating"><strong>Average Rating:</strong> No ratings yet</p>
-                        {% endif %}
-                    </div>
+        <h2>Restaurant Ratings</h2>
+        
+        <!-- Dropdown to view individual reviews -->
+        <div class="review-selector">
+            <label for="restaurant-select">View individual reviews for:</label>
+            <select id="restaurant-select" class="restaurant-dropdown">
+                <option value="">Select a restaurant to view reviews...</option>
+                {% for r in restaurants %}
+                    {% if r.reviews %}
+                        <option value="{{ r.id }}">{{ r.name }} ({{ r.reviews|length }} review{{ 's' if r.reviews|length != 1 else '' }})</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
 
-                    <div class="reviews-section">
-                        <h4>Reviews:</h4>
-                        {% if r.reviews %}
-                            <ul class="reviews-list">
-                                {% for review in r.reviews %}
-                                    <li class="review-item">
-                                        <div class="review-rating">
+        {% if restaurants %}
+            <!-- Restaurant Cards with Average Ratings -->
+            <div class="restaurants-grid">
+                {% for r in restaurants %}
+                    <article class="restaurant-card review-card" data-restaurant-id="{{ r.id }}">
+                        <div class="restaurant-info">
+                            <h3>{{ r.name }}</h3>
+                            <p class="muted">{{ r.cuisine }} — {{ r.halal_status }}</p>
+                            <p>{{ r.description }}</p>
+                            {% if r.avg_rating %}
+                                <div class="rating-display">
+                                    <div class="rating-line">
+                                        <span class="stars">
                                             {% for i in range(1,6) %}
-                                                {% if i <= review.rating %}
+                                                {% if i <= r.avg_rating|round(0,'floor') %}
                                                     ★
                                                 {% else %}
                                                     ☆
                                                 {% endif %}
                                             {% endfor %}
-                                            <span class="rating-number">({{ review.rating }}/5)</span>
-                                        </div>
-                                        <p class="review-text">{{ review.text }}</p>
-                                    </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p class="no-reviews">No reviews yet. Be the first to review!</p>
-                        {% endif %}
-                    </div>
-                </article>
-            {% endfor %}
+                                        </span>
+                                        <strong>Average Rating: {{ r.avg_rating }} / 5</strong>
+                                    </div>
+                                    {% if r.reviews %}
+                                        <div class="review-count">{{ r.reviews|length }} review{{ 's' if r.reviews|length != 1 else '' }}</div>
+                                    {% endif %}
+                                </div>
+                            {% else %}
+                                <p class="no-rating"><strong>Average Rating:</strong> No ratings yet</p>
+                            {% endif %}
+                        </div>
+
+                        <!-- Individual Reviews Section (hidden by default) -->
+                        <div class="reviews-section" id="reviews-{{ r.id }}" style="display: none;">
+                            <h4>Individual Reviews:</h4>
+                            {% if r.reviews %}
+                                <ul class="reviews-list">
+                                    {% for review in r.reviews %}
+                                        <li class="review-item">
+                                            <div class="review-rating">
+                                                {% for i in range(1,6) %}
+                                                    {% if i <= review.rating %}
+                                                        ★
+                                                    {% else %}
+                                                        ☆
+                                                    {% endif %}
+                                                {% endfor %}
+                                                <span class="rating-number">({{ review.rating }}/5)</span>
+                                            </div>
+                                            {% if review.text %}
+                                                <p class="review-text">{{ review.text }}</p>
+                                            {% endif %}
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="no-reviews">No reviews yet. Be the first to review!</p>
+                            {% endif %}
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
         {% else %}
             <p class="no-restaurants">No restaurants available to review.</p>
         {% endif %}
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropdown = document.getElementById('restaurant-select');
+            const allReviewSections = document.querySelectorAll('.reviews-section');
+            const allRestaurantCards = document.querySelectorAll('.review-card');
+
+            dropdown.addEventListener('change', function() {
+                const selectedId = this.value;
+                
+                // Hide all review sections
+                allReviewSections.forEach(section => {
+                    section.style.display = 'none';
+                });
+                
+                // Remove highlight from all cards
+                allRestaurantCards.forEach(card => {
+                    card.classList.remove('selected');
+                });
+                
+                // Show selected restaurant's reviews
+                if (selectedId) {
+                    const selectedSection = document.getElementById('reviews-' + selectedId);
+                    const selectedCard = document.querySelector(`[data-restaurant-id="${selectedId}"]`);
+                    
+                    if (selectedSection) {
+                        selectedSection.style.display = 'block';
+                        // Scroll to the selected restaurant card
+                        if (selectedCard) {
+                            selectedCard.classList.add('selected');
+                            selectedCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </div>
 
 <style>
@@ -212,20 +274,96 @@
     font-weight: 700;
 }
 
-.review-card {
+.review-selector {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
     margin-bottom: 30px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e0e0e0;
+}
+
+.review-selector label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #0b3a0b;
+    font-size: 1rem;
+}
+
+.restaurant-dropdown {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    background: #fff;
+    cursor: pointer;
+}
+
+.restaurant-dropdown:focus {
+    outline: none;
+    border-color: #146b14;
+    box-shadow: 0 0 0 3px rgba(20, 107, 20, 0.1);
+}
+
+.restaurants-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.review-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s ease;
+}
+
+.review-card.selected {
+    border-color: #146b14;
+    box-shadow: 0 4px 12px rgba(20, 107, 20, 0.2);
+}
+
+.review-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .rating-display {
     margin-top: 15px;
     display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.rating-line {
+    display: flex;
     align-items: center;
     gap: 10px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.rating-display .stars {
+    white-space: nowrap;
+    flex-shrink: 0;
 }
 
 .rating-display strong {
     color: #0b3a0b;
     font-size: 1.1rem;
+}
+
+.review-count {
+    color: #666;
+    font-size: 0.9rem;
+    font-weight: normal;
+    margin-top: 4px;
 }
 
 .no-rating {
@@ -301,13 +439,29 @@
         flex-direction: column;
     }
 
+.reviews-section {
+    border-top: 2px solid #e0e0e0;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.reviews-section h4 {
+    color: #0b3a0b;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+@media (max-width: 768px) {
+    .restaurants-grid {
+        grid-template-columns: 1fr;
+    }
+    
     .reviews-section {
         border-left: none;
-        border-top: 2px solid #e0e0e0;
         padding-left: 0;
-        padding-top: 20px;
-        margin-top: 20px;
     }
+}
 }
 </style>
 

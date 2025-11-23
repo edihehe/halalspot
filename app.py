@@ -16,8 +16,10 @@ from utils.db import db
 from routes.restaurant_routes import restaurant_bp
 from routes.review_routes import review_bp
 from routes.fyp_routes import fyp_bp
+from routes.chatbot_routes import chatbot_bp
 from models.restaurant import Restaurant
 from models.content import Content
+from models.review import Review
 
 def insert_demo_restaurants(app):
 
@@ -257,6 +259,7 @@ def create_app():
     app.register_blueprint(restaurant_bp)
     app.register_blueprint(review_bp)
     app.register_blueprint(fyp_bp)
+    app.register_blueprint(chatbot_bp)
 
     # --------------------------
     # Home route
@@ -265,11 +268,12 @@ def create_app():
     def home():
         restaurants = [r.to_dict() for r in Restaurant.query.all()]
 
-         # Attach average rating if reviews exist
+        # Attach average rating from database reviews
         for r in restaurants:
-            reviews = review_store.get(r["id"], [])
-            if reviews:
-                avg = sum([rev["rating"] for rev in reviews]) / len(reviews)
+            # Get reviews from database
+            db_reviews = Review.query.filter_by(restaurant_id=r["id"]).all()
+            if db_reviews:
+                avg = sum([rev.rating for rev in db_reviews]) / len(db_reviews)
                 r["avg_rating"] = round(avg, 1)
             else:
                 r["avg_rating"] = None
@@ -283,9 +287,6 @@ def create_app():
     def contact():
         return render_template("contact.html")
 
-    # In-memory review store
-    review_store = {}
-
     @app.route("/reviews", methods=["GET", "POST"])
     def reviews():
         restaurants = [r.to_dict() for r in Restaurant.query.all()]
@@ -296,21 +297,32 @@ def create_app():
             rating = request.form.get("rating")
 
             if restaurant_id and review_text and rating:
-                restaurant_id = int(restaurant_id)
-                rating = int(rating)
-
-                if restaurant_id not in review_store:
-                    review_store[restaurant_id] = []
-                review_store[restaurant_id].append({"text": review_text, "rating": rating})
+                try:
+                    restaurant_id = int(restaurant_id)
+                    rating = int(rating)
+                    
+                    # Save to database instead of in-memory store
+                    review = Review(
+                        restaurant_id=restaurant_id,
+                        rating=rating,
+                        comment=review_text if review_text else None
+                    )
+                    db.session.add(review)
+                    db.session.commit()
+                except Exception as e:
+                    db.session.rollback()
+                    print(f"Error saving review: {e}")
 
             return redirect(url_for("reviews"))
 
-        # Attach reviews and average rating
+        # Attach reviews and average rating from database
         for r in restaurants:
-            reviews = review_store.get(r["id"], [])
-            r["reviews"] = reviews
-            if reviews:
-                avg = sum([rev["rating"] for rev in reviews]) / len(reviews)
+            # Get reviews from database
+            db_reviews = Review.query.filter_by(restaurant_id=r["id"]).all()
+            # Convert to format expected by template
+            r["reviews"] = [{"text": rev.comment or "", "rating": rev.rating} for rev in db_reviews]
+            if db_reviews:
+                avg = sum([rev.rating for rev in db_reviews]) / len(db_reviews)
                 r["avg_rating"] = round(avg, 1)
             else:
                 r["avg_rating"] = None

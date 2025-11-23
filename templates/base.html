@@ -25,6 +25,7 @@
             <nav class="main-nav">
                 <a href="/fyp">Video Feed</a>
                 <a href="/reviews">Reviews</a>
+                <a href="/chatbot">AI Assistant</a>
                 <a href="/contact">Contact Us</a>
                 
             </nav>
@@ -34,7 +35,20 @@
                 />
         </header>
 
-        <main>{% block content %}{% endblock %}</main>
+        <main>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message flash-{{ category }}">
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+            {% block content %}{% endblock %}
+        </main>
 
         <footer class="site-footer">
             <div class="container">

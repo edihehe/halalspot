@@ -16,53 +16,90 @@
             </form>
         </div>
 
+        <!-- Filters -->
+        <div class="filters-container">
+            <div class="filter-group">
+                <label for="distanceFilter">Distance:</label>
+                <select id="distanceFilter" class="filter-select">
+                    <option value="all">All distances</option>
+                    <option value="1">Within 1 mile</option>
+                    <option value="3">Within 3 miles</option>
+                    <option value="5">Within 5 miles</option>
+                    <option value="10">Within 10 miles</option>
+                    <option value="20">Within 20 miles</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label for="ratingFilter">Minimum Rating:</label>
+                <select id="ratingFilter" class="filter-select">
+                    <option value="0">All ratings</option>
+                    <option value="4.5">4.5+ stars</option>
+                    <option value="4.0">4.0+ stars</option>
+                    <option value="3.5">3.5+ stars</option>
+                    <option value="3.0">3.0+ stars</option>
+                </select>
+            </div>
+            <button id="clearFilters" class="clear-filters-btn">
+                Clear Filters
+            </button>
+        </div>
+
         <!-- Restaurant List -->
-            <div class="restaurant-list">
-        {% if restaurants %}
-            {% for r in restaurants %}
-                <article class="restaurant-card">
-                    <a href="{{ url_for('restaurants.get_restaurant', id=r.id) }}">
-                        <img
-                            src="{{ r.image_url or url_for('static', filename='images/restraunt1.jpg') }}"
-                            alt="{{ r.name }}"
-                            class="card-img"
-                        />
-                    </a>
+        <div class="restaurant-list">
+            {% if restaurants %} {% for r in restaurants %}
+            <article class="restaurant-card" data-restaurant-id="{{ r.id }}">
+                <a href="{{ url_for('restaurants.get_restaurant', id=r.id) }}">
+                    <img
+                        src="{{ r.image_url or url_for('static', filename='images/restraunt1.jpg') }}"
+                        alt="{{ r.name }}"
+                        class="card-img"
+                    />
+                </a>
 
-                    <div class="card-body restaurant-info">
-                        <h3 style="display: flex; justify-content: space-between; align-items: center;">
-                            <a href="{{ url_for('restaurants.get_restaurant', id=r.id) }}">
-                                {{ r.name }}
-                            </a>
-                            {% if r.avg_rating %}
-                                <span class ="stars">
-                                    {% for i in range(1,6) %}
-                                        {% if i <= r.avg_rating|round(0,'floor') %}
-                                            ★
-                                        {% else %}
-                                            ☆
-                                        {% endif %}
-                                    {% endfor %}
-                                    ({{ r.avg_rating }})
-                                </span>
-                            {% else %}
-                                <span class="stars">No rating</span>
-                            {% endif %}
-                        </h3>
-                        <p class="muted">{{ r.cuisine }} — {{ r.halal_status }}</p>
-                        <p>{{ r.description }}</p>
+                <div class="card-body restaurant-info">
+                    <h3
+                        style="
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                        "
+                    >
+                        <a
+                            href="{{ url_for('restaurants.get_restaurant', id=r.id) }}"
+                        >
+                            {{ r.name }}
+                        </a>
+                        {% if r.avg_rating %}
+                        <span class="stars">
+                            {% for i in range(1,6) %} {% if i <=
+                            r.avg_rating|round(0,'floor') %} ★ {% else %} ☆ {%
+                            endif %} {% endfor %} ({{ r.avg_rating }})
+                        </span>
+                        {% else %}
+                        <span class="stars">No rating</span>
+                        {% endif %}
+                    </h3>
+                    <p class="muted">{{ r.cuisine }} — {{ r.halal_status }}</p>
+                    <p>{{ r.description }}</p>
+                    <div class="restaurant-meta">
+                        <span
+                            class="distance-info"
+                            data-restaurant-id="{{ r.id }}"
+                        >
+                            <span class="distance-icon">📍</span>
+                            <span class="distance-text"
+                                >Calculating distance...</span
+                            >
+                        </span>
                     </div>
-                </article>
-            {% endfor %}
-        {% else %}
-            {% if query %}
-                <p>No restaurants matched "{{ query }}".</p>
+                </div>
+            </article>
+            {% endfor %} {% else %} {% if query %}
+            <p>No restaurants matched "{{ query }}".</p>
             {% else %}
-                <p>Search for halal restaurants in Philadelphia.</p>
-            {% endif %}
-        {% endif %}
-    </div>
-
+            <p>Search for halal restaurants in Philadelphia.</p>
+            {% endif %} {% endif %}
+        </div>
     </div>
 
     <!-- RIGHT COLUMN: Map -->
@@ -82,91 +119,228 @@
 
 <!-- Map JS -->
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-    if (!homeRestaurantsData || homeRestaurantsData.length === 0) return;
+    document.addEventListener("DOMContentLoaded", function () {
+        if (!homeRestaurantsData || homeRestaurantsData.length === 0) return;
 
-    const defaultLat = 39.9526;
-    const defaultLng = -75.1652;
+        const defaultLat = 39.9526;
+        const defaultLng = -75.1652;
+        let userLocation = { lat: defaultLat, lng: defaultLng };
+        let restaurantsWithDistance = [];
 
-    const map = L.map("home-map").setView([defaultLat, defaultLng], 13);
+        const map = L.map("home-map").setView([defaultLat, defaultLng], 13);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: "&copy; OpenStreetMap contributors",
-    }).addTo(map);
-
-    // Function to add a static circle for the user location
-    function addUserCircle(lat, lng) {
-        L.circle([lat, lng], {
-            color: 'blue',
-            fillColor: '#1E90FF',
-            fillOpacity: 0.4,
-            radius: 50,
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: "&copy; OpenStreetMap contributors",
         }).addTo(map);
-    }
 
-    // Get user's location
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            function (position) {
-                const userLat = position.coords.latitude;
-                const userLng = position.coords.longitude;
-                map.setView([userLat, userLng], 13);
-                addUserCircle(userLat, userLng);
-            },
-            function () {
-                addUserCircle(defaultLat, defaultLng);
-            }
-        );
-    } else {
-        addUserCircle(defaultLat, defaultLng);
-    }
+        // Haversine formula to calculate distance between two coordinates in miles
+        function calculateDistance(lat1, lon1, lat2, lon2) {
+            const R = 3959; // Earth's radius in miles
+            const dLat = ((lat2 - lat1) * Math.PI) / 180;
+            const dLon = ((lon2 - lon1) * Math.PI) / 180;
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos((lat1 * Math.PI) / 180) *
+                    Math.cos((lat2 * Math.PI) / 180) *
+                    Math.sin(dLon / 2) *
+                    Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
 
-    // Keep a reference of markers by restaurant ID
-    const restaurantMarkers = {};
-    homeRestaurantsData.forEach((r) => {
-        if (r.latitude && r.longitude) {
-            const marker = L.marker([r.latitude, r.longitude]).addTo(map);
-            marker.bindPopup(`
+        // Calculate distances for all restaurants
+        function calculateDistances(userLat, userLng) {
+            restaurantsWithDistance = homeRestaurantsData.map(function (r) {
+                if (r.latitude && r.longitude) {
+                    const distance = calculateDistance(
+                        userLat,
+                        userLng,
+                        r.latitude,
+                        r.longitude
+                    );
+                    var restaurant = {};
+                    for (var key in r) {
+                        restaurant[key] = r[key];
+                    }
+                    restaurant.distance = distance;
+                    return restaurant;
+                }
+                var restaurant = {};
+                for (var key in r) {
+                    restaurant[key] = r[key];
+                }
+                restaurant.distance = null;
+                return restaurant;
+            });
+
+            // Sort by distance
+            restaurantsWithDistance.sort(function (a, b) {
+                if (a.distance === null) return 1;
+                if (b.distance === null) return -1;
+                return a.distance - b.distance;
+            });
+
+            // Update distance display
+            updateDistanceDisplay();
+            // Apply current filters
+            applyFilters();
+        }
+
+        // Update distance display in restaurant cards
+        function updateDistanceDisplay() {
+            restaurantsWithDistance.forEach(function (r) {
+                const distanceElement = document.querySelector(
+                    '.distance-info[data-restaurant-id="' +
+                        r.id +
+                        '"] .distance-text'
+                );
+                if (distanceElement) {
+                    if (r.distance !== null) {
+                        const distanceText =
+                            r.distance < 1
+                                ? (r.distance * 5280).toFixed(0) + " ft"
+                                : r.distance.toFixed(1) + " mi";
+                        distanceElement.textContent = distanceText;
+                    } else {
+                        distanceElement.textContent = "Distance unavailable";
+                    }
+                }
+            });
+        }
+
+        // Function to add a static circle for the user location
+        function addUserCircle(lat, lng) {
+            L.circle([lat, lng], {
+                color: "blue",
+                fillColor: "#1E90FF",
+                fillOpacity: 0.4,
+                radius: 50,
+            }).addTo(map);
+        }
+
+        // Get user's location
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    userLocation.lat = position.coords.latitude;
+                    userLocation.lng = position.coords.longitude;
+                    map.setView([userLocation.lat, userLocation.lng], 13);
+                    addUserCircle(userLocation.lat, userLocation.lng);
+                    calculateDistances(userLocation.lat, userLocation.lng);
+                },
+                function () {
+                    addUserCircle(defaultLat, defaultLng);
+                    calculateDistances(defaultLat, defaultLng);
+                }
+            );
+        } else {
+            addUserCircle(defaultLat, defaultLng);
+            calculateDistances(defaultLat, defaultLng);
+        }
+
+        // Keep a reference of markers by restaurant ID
+        const restaurantMarkers = {};
+        homeRestaurantsData.forEach((r) => {
+            if (r.latitude && r.longitude) {
+                const marker = L.marker([r.latitude, r.longitude]).addTo(map);
+                marker.bindPopup(`
                 <strong>${r.name}</strong><br/>
                 ${r.address}<br/>
                 <a href="/restaurants/${r.id}">View details</a>
             `);
-            restaurantMarkers[r.id] = marker;
-        }
-    });
-
-    // Hover events only on restaurant titles (<h3>)
-    document.querySelectorAll(".restaurant-card h3 a").forEach((title, index) => {
-        title.addEventListener("mouseenter", function () {
-            const r = homeRestaurantsData[index];
-            if (r && r.latitude && r.longitude) {
-                map.setView([r.latitude, r.longitude], 16, { animate: true });
-                const marker = restaurantMarkers[r.id];
-                if (marker) marker.openPopup();
+                restaurantMarkers[r.id] = marker;
             }
         });
 
-        title.addEventListener("mouseleave", function () {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    function (position) {
-                        map.setView([position.coords.latitude, position.coords.longitude], 13, { animate: true });
-                    },
-                    function () {
-                        map.setView([defaultLat, defaultLng], 13, { animate: true });
-                    }
+        // Filter functionality
+        const distanceFilter = document.getElementById("distanceFilter");
+        const ratingFilter = document.getElementById("ratingFilter");
+        const clearFiltersBtn = document.getElementById("clearFilters");
+
+        function applyFilters() {
+            const maxDistance = parseFloat(distanceFilter.value) || Infinity;
+            const minRating = parseFloat(ratingFilter.value) || 0;
+
+            const restaurantCards =
+                document.querySelectorAll(".restaurant-card");
+            let visibleCount = 0;
+
+            restaurantsWithDistance.forEach(function (r) {
+                const card = document.querySelector(
+                    '.restaurant-card[data-restaurant-id="' + r.id + '"]'
                 );
+                if (!card) return;
+
+                // Check distance filter
+                const withinDistance =
+                    r.distance === null || r.distance <= maxDistance;
+
+                // Check rating filter
+                const meetsRating = !r.avg_rating || r.avg_rating >= minRating;
+
+                if (withinDistance && meetsRating) {
+                    card.style.display = "flex";
+                    visibleCount++;
+                } else {
+                    card.style.display = "none";
+                }
+            });
+
+            // Show message if no results
+            const restaurantList = document.querySelector(".restaurant-list");
+            let noResultsMsg = document.querySelector(".no-results-message");
+
+            if (visibleCount === 0) {
+                if (!noResultsMsg) {
+                    noResultsMsg = document.createElement("p");
+                    noResultsMsg.className = "no-results-message";
+                    noResultsMsg.textContent =
+                        "No restaurants match your filters. Try adjusting your criteria.";
+                    restaurantList.appendChild(noResultsMsg);
+                }
             } else {
-                map.setView([defaultLat, defaultLng], 13, { animate: true });
+                if (noResultsMsg) {
+                    noResultsMsg.remove();
+                }
             }
+        }
+
+        distanceFilter.addEventListener("change", applyFilters);
+        ratingFilter.addEventListener("change", applyFilters);
+
+        clearFiltersBtn.addEventListener("click", function () {
+            distanceFilter.value = "all";
+            ratingFilter.value = "0";
+            applyFilters();
+        });
+
+        // Hover events only on restaurant titles (<h3>)
+        document.querySelectorAll(".restaurant-card h3 a").forEach((title) => {
+            title.addEventListener("mouseenter", function () {
+                const card = title.closest(".restaurant-card");
+                const restaurantId = parseInt(
+                    card.getAttribute("data-restaurant-id")
+                );
+                const r = restaurantsWithDistance.find(function (rest) {
+                    return rest.id === restaurantId;
+                });
+                if (r && r.latitude && r.longitude) {
+                    map.setView([r.latitude, r.longitude], 16, {
+                        animate: true,
+                    });
+                    const marker = restaurantMarkers[r.id];
+                    if (marker) marker.openPopup();
+                }
+            });
+
+            title.addEventListener("mouseleave", function () {
+                map.setView([userLocation.lat, userLocation.lng], 13, {
+                    animate: true,
+                });
+            });
         });
     });
-});
 </script>
-
-
-
-
 
 {% endblock %}

@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/chatbot.css') }}">
+
+<div class="chatbot-container">
+    <div class="chatbot-header">
+        <h1>🤖 Halal Restaurant Assistant</h1>
+        <p>Ask me anything about halal restaurants in Philadelphia!</p>
+    </div>
+
+    <div class="chatbot-wrapper">
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message">
+                <div class="message-content">
+                    <div class="message-avatar">🤖</div>
+                    <div class="message-text">
+                        Hi! I'm your halal restaurant assistant. I can help you find restaurants by cuisine, halal status, ratings, and more. What would you like to search for?
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="chat-input-container">
+            <form id="chatForm" class="chat-form">
+                <input 
+                    type="text" 
+                    id="userInput" 
+                    class="chat-input" 
+                    placeholder="Ask me anything... (e.g., 'Find Middle Eastern restaurants' or 'Show me top rated halal places')"
+                    autocomplete="off"
+                />
+                <button type="submit" class="send-button" id="sendButton">
+                    <span>Send</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Restaurant Results Panel -->
+    <div class="results-panel" id="resultsPanel" style="display: none;">
+        <div class="results-header">
+            <h3>Search Results</h3>
+            <button class="close-results" id="closeResults">×</button>
+        </div>
+        <div class="results-content" id="resultsContent"></div>
+    </div>
+</div>
+
+<script>
+const chatMessages = document.getElementById('chatMessages');
+const chatForm = document.getElementById('chatForm');
+const userInput = document.getElementById('userInput');
+const sendButton = document.getElementById('sendButton');
+const resultsPanel = document.getElementById('resultsPanel');
+const resultsContent = document.getElementById('resultsContent');
+const closeResults = document.getElementById('closeResults');
+
+function addMessage(text, isBot = false) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${isBot ? 'bot-message' : 'user-message'}`;
+    
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'message-content';
+    
+    if (isBot) {
+        contentDiv.innerHTML = `
+            <div class="message-avatar">🤖</div>
+            <div class="message-text">${formatMessage(text)}</div>
+        `;
+    } else {
+        contentDiv.innerHTML = `
+            <div class="message-text">${escapeHtml(text)}</div>
+            <div class="message-avatar">👤</div>
+        `;
+    }
+    
+    messageDiv.appendChild(contentDiv);
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function formatMessage(text) {
+    // Convert markdown-style **bold** to HTML
+    return escapeHtml(text)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\n/g, '<br>');
+}
+
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+function displayRestaurants(restaurants) {
+    if (restaurants.length === 0) {
+        resultsPanel.style.display = 'none';
+        return;
+    }
+    
+    resultsContent.innerHTML = '';
+    
+    restaurants.forEach(restaurant => {
+        const card = document.createElement('div');
+        card.className = 'restaurant-result-card';
+        card.onclick = () => window.location.href = `/restaurants/${restaurant.id}`;
+        
+        const ratingHtml = restaurant.avg_rating 
+            ? `<div class="result-rating">⭐ ${restaurant.avg_rating}/5 (${restaurant.review_count} reviews)</div>`
+            : '<div class="result-rating">No ratings yet</div>';
+        
+        card.innerHTML = `
+            <div class="result-image">
+                <img src="${restaurant.image_url || '/static/images/rest_images.jpg'}" alt="${restaurant.name}" />
+            </div>
+            <div class="result-info">
+                <h4>${restaurant.name}</h4>
+                <p class="result-cuisine">${restaurant.cuisine} • ${restaurant.halal_status}</p>
+                <p class="result-description">${restaurant.description}</p>
+                ${ratingHtml}
+                <div class="result-address">📍 ${restaurant.address}</div>
+            </div>
+        `;
+        
+        resultsContent.appendChild(card);
+    });
+    
+    resultsPanel.style.display = 'block';
+}
+
+closeResults.addEventListener('click', () => {
+    resultsPanel.style.display = 'none';
+});
+
+chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const message = userInput.value.trim();
+    if (!message) return;
+    
+    // Add user message
+    addMessage(message, false);
+    userInput.value = '';
+    sendButton.disabled = true;
+    sendButton.innerHTML = '<span>...</span>';
+    
+    // Show typing indicator
+    const typingIndicator = document.createElement('div');
+    typingIndicator.className = 'message bot-message typing';
+    typingIndicator.innerHTML = `
+        <div class="message-content">
+            <div class="message-avatar">🤖</div>
+            <div class="message-text">Thinking...</div>
+        </div>
+    `;
+    chatMessages.appendChild(typingIndicator);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    try {
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message })
+        });
+        
+        const data = await response.json();
+        
+        // Remove typing indicator
+        typingIndicator.remove();
+        
+        // Add bot response
+        addMessage(data.message, true);
+        
+        // Display restaurants if any
+        if (data.restaurants && data.restaurants.length > 0) {
+            displayRestaurants(data.restaurants);
+        } else {
+            resultsPanel.style.display = 'none';
+        }
+    } catch (error) {
+        typingIndicator.remove();
+        addMessage("Sorry, I encountered an error. Please try again.", true);
+        console.error('Error:', error);
+    } finally {
+        sendButton.disabled = false;
+        sendButton.innerHTML = `
+            <span>Send</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+        `;
+    }
+});
+
+// Allow Enter key to send (but Shift+Enter for new line)
+userInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        chatForm.dispatchEvent(new Event('submit'));
+    }
+});
+</script>
+
+{% endblock %}
+

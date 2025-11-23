@@ -67,6 +67,30 @@
             <!-- Reviews Section -->
             <div class="info-card">
                 <h2>Reviews ({{ reviews|length }})</h2>
+                
+                <!-- Add Review Form -->
+                <div class="add-review-form">
+                    <h3>Add Your Review</h3>
+                    <form action="{{ url_for('reviews.add_review', id=restaurant.id) }}" method="POST">
+                        <div class="form-group">
+                            <label for="rating">Rating:</label>
+                            <select name="rating" id="rating" required>
+                                <option value="">Select a rating</option>
+                                <option value="5">★★★★★ (5 - Excellent)</option>
+                                <option value="4">★★★★☆ (4 - Very Good)</option>
+                                <option value="3">★★★☆☆ (3 - Good)</option>
+                                <option value="2">★★☆☆☆ (2 - Fair)</option>
+                                <option value="1">★☆☆☆☆ (1 - Poor)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="comment">Your Review (optional):</label>
+                            <textarea name="comment" id="comment" rows="4" placeholder="Share your experience..." maxlength="500"></textarea>
+                        </div>
+                        <button type="submit" class="submit-review-btn">Submit Review</button>
+                    </form>
+                </div>
+                
                 {% if reviews %}
                     <div class="reviews-list">
                         {% for review in reviews %}
