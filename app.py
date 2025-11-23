@@ -38,6 +38,9 @@ def create_app():
         restaurants = [r.to_dict() for r in Restaurant.query.all()]
         return render_template("home.html", restaurants=restaurants)
 
+    @app.route("/contact")
+    def contact():
+        return render_template("contact.html")
     return app
 
 
@@ -51,56 +54,46 @@ def insert_demo_restaurants(app):
     Update this list with the real restaurants you want to display.
     """
     demo_restaurants = [
-        {
-            "name": "Halal Guys Philly",
-            "description": "Authentic Mediterranean & Middle Eastern halal dishes.",
-            "address": "123 Chestnut St, Philadelphia, PA",
-            "latitude": 39.9496,
-            "longitude": -75.1503,
-            "cuisine": "Mediterranean",
-            "halal_status": "Certified Halal",
-            "image_url": "/static/images/r1.jpg"
-        },
-        {
-            "name": "Philly Shawarma",
-            "description": "Halal Middle Eastern shawarma, falafel & more.",
-            "address": "456 Market St, Philadelphia, PA",
-            "latitude": 39.9502,
-            "longitude": -75.1457,
-            "cuisine": "Middle Eastern",
-            "halal_status": "Muslim Owned",
-            "image_url": "/static/images/r2.jpg"
-        },
-        {
-            "name": "Mediterraneo Philly",
-            "description": "Halal Mediterranean dishes, kebabs & falafel.",
-            "address": "789 Walnut St, Philadelphia, PA",
-            "latitude": 39.9521,
-            "longitude": -75.1450,
-            "cuisine": "Mediterranean",
-            "halal_status": "Certified Halal",
-            "image_url": "/static/images/r3.jpg"
-        },
-        {
-            "name": "Halal Grill Express",
-            "description": "Fast casual halal meals including gyros and rice plates.",
-            "address": "321 Broad St, Philadelphia, PA",
-            "latitude": 39.9508,
-            "longitude": -75.1555,
-            "cuisine": "Middle Eastern",
-            "halal_status": "Muslim Owned",
-            "image_url": "/static/images/r4.jpg"
-        },
-        {
-            "name": "Phoenicia Halal",
-            "description": "Halal Lebanese & Mediterranean cuisine with fresh ingredients.",
-            "address": "654 Arch St, Philadelphia, PA",
-            "latitude": 39.9515,
-            "longitude": -75.1483,
-            "cuisine": "Lebanese",
-            "halal_status": "Certified Halal",
-            "image_url": "/static/images/r5.jpg"
-        },
+{
+    "name": "The Halal Guys",
+    "description": "Famous for gyro platters, chicken over rice, and white & red sauce — a well-known halal street-food chain.",
+    "address": "37 E City Ave, Bala Cynwyd, PA 19004",
+    "latitude": 40.002599,
+    "longitude": -75.225074,
+    "cuisine": "Middle Eastern",
+    "halal_status": "Certified Halal",
+    "image_url": "/static/images/halalGuy.png"
+},
+{
+    "name": "Dave's Hot Chicken",
+    "description": "Famous halal-certified hot chicken tenders and sliders served with bold spice levels.",
+    "address": "1731 Chestnut St, Philadelphia, PA 19103",
+    "latitude": 39.951923,
+    "longitude": -75.169856,
+    "cuisine": "American",
+    "halal_status": "Certified Halal",
+    "image_url": "/static/images/daves.jpg"
+},
+{
+    "name": "Crown Fried Chicken",
+    "description": "Classic halal fried chicken spot offering crispy chicken, sandwiches, and late-night comfort food.",
+    "address": "600 S Broad St, Philadelphia, PA 19146",
+    "latitude": 39.943588,
+    "longitude": -75.165840,
+    "cuisine": "American",
+    "halal_status": "Halal",
+    "image_url": "/static/images/crown.png"
+},
+{
+    "name": "Asad's Hot Chicken",
+    "description": "Nashville-style halal hot chicken known for crispy spice levels and fresh sides.",
+    "address": "4627 Woodland Ave, Philadelphia, PA 19143",
+    "latitude": 39.943994,
+    "longitude": -75.210697,
+    "cuisine": "American",
+    "halal_status": "Halal",
+    "image_url": "/static/images/asad.png"
+},
     ]
 
     with app.app_context():
