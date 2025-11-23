@@ -159,56 +159,69 @@ def insert_demo_content(app):
             restaurants = Restaurant.query.all()
             
             demo_content = [
-                {
-                    "restaurant_id": restaurants[0].id if restaurants else None,
-                    "title": "🔥 Halal Guys Gyro Platter",
-                    "description": "The most iconic halal street food in Philly! White sauce, red sauce, and perfectly seasoned chicken over rice. A must-try! 🍗✨",
-                    "image_url": "/static/images/halalGuy.png",
-                    "video_url": "/static/videos/halalguys.mp4",
-                    "likes_count": 1247,
-                    "comments_count": 89,
-                    "shares_count": 234,
-                    "saves_count": 156,
-                    "order_url": f"/restaurants/{restaurants[0].id}" if restaurants else None
-                },
-                {
-                    "restaurant_id": restaurants[3].id if len(restaurants) > 3 else None,
-                    "title": "Nashville Hot Chicken",
-                    "description": "Asad's Hot Chicken bringing the heat! 🌶️ Nashville-style halal chicken that's absolutely fire!",
-                    "image_url": "/static/images/asad.png",
-                    "video_url": "/static/videos/asads.mp4",
-                    "likes_count": 1123,
-                    "comments_count": 78,
-                    "shares_count": 189,
-                    "saves_count": 134,
-                    "order_url": f"/restaurants/{restaurants[3].id}" if len(restaurants) > 3 else None
-                },
-                {
-                    "restaurant_id": restaurants[4].id if len(restaurants) > 4 else None,
-                    "title": "Shawarma Platter",
-                    "description": "Saad's Halal Restaurant serving up authentic shawarma! 🥙 Fresh, flavorful, and always halal certified.",
-                    "image_url": "/static/images/saad.png",
-                    "video_url": "/static/videos/saads.mp4",
-                    "likes_count": 987,
-                    "comments_count": 56,
-                    "shares_count": 145,
-                    "saves_count": 112,
-                    "order_url": f"/restaurants/{restaurants[4].id}" if len(restaurants) > 4 else None
-                },
-                {
-                    "creator_name": "HalalFoodie_Philly",
-                    "is_sponsored": True,
-                    "title": "Hidden Gem: Best Halal Spot in West Philly",
-                    "description": "Just discovered this amazing spot! The shawarma here is incredible and the prices are unbeatable. Definitely check it out! 🎯",
-                    "image_url": "/static/images/saad.png",
-                    "video_url": "/static/videos/IMG_4123.mp4",
-                    "likes_count": 2341,
-                    "comments_count": 156,
-                    "shares_count": 289,
-                    "saves_count": 445,
-                    "order_url": None
-                }
-            ]
+            {
+                "restaurant_id": restaurants[0].id if restaurants else None,
+                "title": "🔥 The Halal Guys Gyro Platter",
+                "description": "The most iconic halal street food in Philly! White sauce, red sauce, and perfectly seasoned chicken over rice. A must-try! 🍗✨",
+                "image_url": "/static/images/halalGuy.png",
+                "video_url": "/static/videos/halalguys.mp4",
+                "likes_count": 1247,
+                "comments_count": 89,
+                "shares_count": 234,
+                "saves_count": 156,
+                "order_url": f"/restaurants/{restaurants[0].id}" if restaurants else None
+            },
+            {
+                "restaurant_id": restaurants[1].id if len(restaurants) > 1 else None,
+                "title": "Dave's Hot Chicken Tenders",
+                "description": "Famous halal-certified hot chicken tenders and sliders served with bold spice levels. 🌶️",
+                "image_url": "/static/images/daves.jpg",
+                "video_url": "/static/videos/daves.mp4",
+                "likes_count": 6767,
+                "comments_count": 67,
+                "shares_count": 676,
+                "saves_count": 767,
+                "order_url": f"/restaurants/{restaurants[1].id}" if len(restaurants) > 1 else None
+            },
+            {
+                "restaurant_id": restaurants[2].id if len(restaurants) > 2 else None,
+                "title": "Crown Fried Chicken Platter",
+                "description": "Classic halal fried chicken spot offering crispy chicken, sandwiches, and late-night comfort food. 🍗",
+                "image_url": "/static/images/crown.png",
+                "video_url": "/static/videos/crown.mp4",
+                "likes_count": 987,
+                "comments_count": 56,
+                "shares_count": 145,
+                "saves_count": 112,
+                "order_url": f"/restaurants/{restaurants[2].id}" if len(restaurants) > 2 else None
+            },
+            {
+                "restaurant_id": restaurants[3].id if len(restaurants) > 3 else None,
+                "title": "Asad's Hot Chicken Special",
+                "description": "Nashville-style halal hot chicken known for crispy spice levels and fresh sides. 🍗🔥",
+                "image_url": "/static/images/asad.png",
+                "video_url": "/static/videos/asads.mp4",
+                "likes_count": 2341,
+                "comments_count": 156,
+                "shares_count": 289,
+                "saves_count": 445,
+                "order_url": f"/restaurants/{restaurants[3].id}" if len(restaurants) > 3 else None
+            },
+            {
+                "restaurant_id": restaurants[4].id if len(restaurants) > 4 else None,
+                "title": "Saad's Halal Shawarma Platter",
+                "description": "West Philly staple serving shawarma, falafel, platters, and cheesesteaks — all 100% halal. 🥙",
+                "image_url": "/static/images/saad.png",
+                "video_url": "/static/videos/saads.mp4",
+                "likes_count": 1320,
+                "comments_count": 78,
+                "shares_count": 210,
+                "saves_count": 190,
+                "order_url": f"/restaurants/{restaurants[4].id}" if len(restaurants) > 4 else None
+            }
+        ]
+
+
             
             for c in demo_content:
                 content = Content(

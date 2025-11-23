@@ -56,11 +56,11 @@
                 <p class="address">{{ restaurant.address }}</p>
                 <div id="restaurant-map" class="restaurant-map"></div>
                 <div class="map-actions">
-                    <a href="https://www.google.com/maps/search/?api=1&query={{ restaurant.latitude }},{{ restaurant.longitude }}" 
-                       target="_blank" 
-                       class="map-link-btn">
-                        📍 Open in Google Maps
-                    </a>
+                <a href="https://www.google.com/maps/search/?api=1&query={{ restaurant.name }}, {{restaurant.address}}" 
+                target="_blank" 
+                class="map-link-btn">
+                📍 Open in Google Maps
+                </a>
                 </div>
             </div>
 
