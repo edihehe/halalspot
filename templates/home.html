@@ -1,17 +1,14 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 
 <div class="homeContainer">
-
     <!-- LEFT COLUMN: search + restaurant list -->
     <div class="left-column">
-
         <!-- Search Bar -->
         <div class="search-box">
-            <form action="/restaurants/search" method="get" class="search-form">
-                <input 
-                    type="text" 
-                    name="query" 
+            <form action="/find" method="get" class="search-form">
+                <input
+                    type="text"
+                    name="query"
                     placeholder="Search restaurants or cuisine..."
                     value="{{ query if query is defined else '' }}"
                 />
@@ -20,15 +17,14 @@
         </div>
 
         <!-- Restaurant List -->
-        <div class="restaurant-list">
-            {% if restaurants and restaurants|length > 0 %}
-                {% for r in restaurants %}
+            <div class="restaurant-list">
+        {% if restaurants %}
+            {% for r in restaurants %}
                 <article class="restaurant-card">
-
                     <a href="{{ url_for('restaurants.get_restaurant', id=r.id) }}">
-                        <img 
-                            src="{{ r.image_url or url_for('static', filename='images/restraunt1.jpg') }}" 
-                            alt="{{ r.name }}" 
+                        <img
+                            src="{{ r.image_url or url_for('static', filename='images/restraunt1.jpg') }}"
+                            alt="{{ r.name }}"
                             class="card-img"
                         />
                     </a>
@@ -42,17 +38,16 @@
                         <p class="muted">{{ r.cuisine }} — {{ r.halal_status }}</p>
                         <p>{{ r.description }}</p>
                     </div>
-
                 </article>
-                {% endfor %}
-
-            {% elif query %}
+            {% endfor %}
+        {% else %}
+            {% if query %}
                 <p>No restaurants matched "{{ query }}".</p>
-
             {% else %}
                 <p>Search for halal restaurants in Philadelphia.</p>
             {% endif %}
-        </div>
+        {% endif %}
+    </div>
 
     </div>
 
@@ -60,15 +55,10 @@
     <div class="right-column">
         <div id="home-map"></div>
     </div>
-
 </div>
 
-
 <!-- Leaflet CSS + JS -->
-<link 
-    rel="stylesheet" 
-    href="https://unpkg.com/leaflet/dist/leaflet.css" 
-/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <!-- Pass Restaurants to JS -->
@@ -79,31 +69,90 @@
 <!-- Map JS -->
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-
     if (!homeRestaurantsData || homeRestaurantsData.length === 0) return;
 
-    const map = L.map("home-map").setView(
-        [homeRestaurantsData[0].latitude, homeRestaurantsData[0].longitude],
-        13
-    );
+    const defaultLat = 39.9526;
+    const defaultLng = -75.1652;
+
+    const map = L.map("home-map").setView([defaultLat, defaultLng], 13);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         maxZoom: 19,
-        attribution: "&copy; OpenStreetMap contributors"
+        attribution: "&copy; OpenStreetMap contributors",
     }).addTo(map);
 
-    homeRestaurantsData.forEach(r => {
+    // Function to add a static circle for the user location
+    function addUserCircle(lat, lng) {
+        L.circle([lat, lng], {
+            color: 'blue',
+            fillColor: '#1E90FF',
+            fillOpacity: 0.4,
+            radius: 50,
+        }).addTo(map);
+    }
+
+    // Get user's location
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function (position) {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+                map.setView([userLat, userLng], 13);
+                addUserCircle(userLat, userLng);
+            },
+            function () {
+                addUserCircle(defaultLat, defaultLng);
+            }
+        );
+    } else {
+        addUserCircle(defaultLat, defaultLng);
+    }
+
+    // Keep a reference of markers by restaurant ID
+    const restaurantMarkers = {};
+    homeRestaurantsData.forEach((r) => {
         if (r.latitude && r.longitude) {
             const marker = L.marker([r.latitude, r.longitude]).addTo(map);
-
             marker.bindPopup(`
                 <strong>${r.name}</strong><br/>
                 ${r.address}<br/>
                 <a href="/restaurants/${r.id}">View details</a>
             `);
+            restaurantMarkers[r.id] = marker;
         }
+    });
+
+    // Hover events only on restaurant titles (<h3>)
+    document.querySelectorAll(".restaurant-card h3").forEach((title, index) => {
+        title.addEventListener("mouseenter", function () {
+            const r = homeRestaurantsData[index];
+            if (r && r.latitude && r.longitude) {
+                map.setView([r.latitude, r.longitude], 16, { animate: true });
+                const marker = restaurantMarkers[r.id];
+                if (marker) marker.openPopup();
+            }
+        });
+
+        title.addEventListener("mouseleave", function () {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        map.setView([position.coords.latitude, position.coords.longitude], 13, { animate: true });
+                    },
+                    function () {
+                        map.setView([defaultLat, defaultLng], 13, { animate: true });
+                    }
+                );
+            } else {
+                map.setView([defaultLat, defaultLng], 13, { animate: true });
+            }
+        });
     });
 });
 </script>
+
+
+
+
 
 {% endblock %}

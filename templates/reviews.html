@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Restaurant Reviews</h1>
+<p>Select a restaurant and share your thoughts below.</p>
+
+<!-- Review Form -->
+<form action="{{ url_for('reviews') }}" method="post">
+    <label for="restaurant_id">Choose a restaurant:</label><br>
+    <select name="restaurant_id" id="restaurant_id" required>
+        {% for r in restaurants %}
+            <option value="{{ r.id }}">{{ r.name }}</option>
+        {% endfor %}
+    </select><br><br>
+
+    <label for="review_text">Your Review:</label><br>
+    <textarea name="review_text" id="review_text" rows="4" cols="50" placeholder="Write your review here..." required></textarea><br>
+    <button type="submit">Submit Review</button>
+</form>
+
+<hr>
+
+<!-- Display Restaurants with Reviews -->
+<div class="review-list">
+    {% if restaurants %}
+        {% for r in restaurants %}
+            <article class="restaurant-card">
+                <div class="restaurant-info">
+                    <h3>{{ r.name }}</h3>
+                    <p>{{ r.cuisine }} — {{ r.halal_status }}</p>
+                    <p>{{ r.description }}</p>
+                </div>
+
+                <div class="reviews-section">
+                    <h4>Reviews:</h4>
+                    {% if r.reviews %}
+                        <ul>
+                            {% for review in r.reviews %}
+                                <li>{{ review }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p>No reviews yet.</p>
+                    {% endif %}
+                </div>
+            </article>
+            <hr />
+        {% endfor %}
+    {% else %}
+        <p>No restaurants available to review.</p>
+    {% endif %}
+</div>
+
+{% endblock %}

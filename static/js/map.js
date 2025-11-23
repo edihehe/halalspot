@@ -5,9 +5,10 @@
         return;
     }
 
+    // Default center
     const center = [
-        restaurantsData[0].latitude || 40.7128,
-        restaurantsData[0].longitude || -74.0060
+        restaurantsData[0].latitude || 39.942178,
+        restaurantsData[0].longitude || -75.166133
     ];
     const map = L.map('map').setView(center, 13);
 
@@ -17,6 +18,8 @@
     }).addTo(map);
 
     const markers = [];
+
+    // Add restaurant markers
     restaurantsData.forEach(r => {
         if (r.latitude && r.longitude) {
             const marker = L.marker([r.latitude, r.longitude]).addTo(map);
@@ -31,8 +34,17 @@
         }
     });
 
-    if (markers.length > 0) {
-        const group = new L.featureGroup(markers);
-        map.fitBounds(group.getBounds(), { padding: [40, 40] });
-    }
+    // Add "You Are Here" marker at the center
+    const centerMarker = L.marker(center, {
+        icon: L.icon({
+            iconUrl: '/static/images/you_are_here.png', // optional custom icon
+            iconSize: [30, 30],
+            iconAnchor: [15, 30]
+        })
+    }).addTo(map);
+    centerMarker.bindPopup('<strong>You are here</strong>').openPopup();
+
+    // Adjust bounds to include all restaurant markers + center marker
+    const group = new L.featureGroup([...markers, centerMarker]);
+    map.fitBounds(group.getBounds(), { padding: [40, 40] });
 })();
