@@ -23,16 +23,22 @@
             </div>
 
             <nav class="main-nav">
+                <a href="/fyp">Video Feed</a>
                 <a href="/reviews">Reviews</a>
                 <a href="/contact">Contact Us</a>
+                
             </nav>
+            <img
+                src="{{ url_for('static', filename='images/Bismillah.png') }}"
+                id="Bismillah"
+                />
         </header>
 
         <main>{% block content %}{% endblock %}</main>
 
         <footer class="site-footer">
             <div class="container">
-                <p>&copy; 2025 Halal Spot. All rights reserved.</p>
+                <p>&copy; 2025 HalalSpot. All rights reserved.</p>
                 <p>Helping you find Verified halal food, wherever you are.</p>
             </div>
         </footer>

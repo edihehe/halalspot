@@ -1,34 +1,144 @@
 {% extends "base.html" %}
 {% block content %}
 
-    <h1>Meet the Team</h1>
-    <p>Feel free to reach out to any of us:</p>
+<div class="contact-container">
+    <div class="contact-header">
+        <h1>Meet the Team</h1>
+        <p class="contact-subtitle">Feel free to reach out to any of us</p>
+    </div>
 
-    <table>
-        <tr>
-            <td>
+    <div class="team-grid">
+        <div class="team-card">
+            <div class="team-card-header">
                 <h3>Babar Baloch</h3>
-                <p>Email: bababaloch415@gmail.com</p>
-                <p>Linkedin: <a href="https://www.linkedin.com/in/bbrbaloch">linkedin.com/in/bbrbaloch</a></p>
-            </td>
-            <td>
+            </div>
+            <div class="team-card-body">
+                <p class="team-email">📧 <a href="mailto:bababaloch415@gmail.com">bababaloch415@gmail.com</a></p>
+                <p class="team-linkedin">💼 <a href="https://www.linkedin.com/in/bbrbaloch" target="_blank">linkedin.com/in/bbrbaloch</a></p>
+            </div>
+        </div>
+
+        <div class="team-card">
+            <div class="team-card-header">
                 <h3>Jeffrey Khov</h3>
-                <p>Email: jeffreykhov7@gmail.com</p>
-                <p>Linkedin: <a href="https://www.linkedin.com/in/jkhov">linkedin.com/in/jkhov</a></p>
-            </td>
-        </tr>
-        <tr>
-            <td>
+            </div>
+            <div class="team-card-body">
+                <p class="team-email">📧 <a href="mailto:jeffreykhov7@gmail.com">jeffreykhov7@gmail.com</a></p>
+                <p class="team-linkedin">💼 <a href="https://www.linkedin.com/in/jkhov" target="_blank">linkedin.com/in/jkhov</a></p>
+            </div>
+        </div>
+
+        <div class="team-card">
+            <div class="team-card-header">
                 <h3>Sarvarbek Rahmonov</h3>
-                <p>Email: rahmonovsarvarbek3@gmail.com</p>
-                <p>Linkedin: <a href="https://www.linkedin.com/in/rahmonovsar">linkedin.com/in/rahmonovsar</a></p>
-            </td>
-            <td>
+            </div>
+            <div class="team-card-body">
+                <p class="team-email">📧 <a href="mailto:rahmonovsarvarbek3@gmail.com">rahmonovsarvarbek3@gmail.com</a></p>
+                <p class="team-linkedin">💼 <a href="https://www.linkedin.com/in/rahmonovsar" target="_blank">linkedin.com/in/rahmonovsar</a></p>
+            </div>
+        </div>
+
+        <div class="team-card">
+            <div class="team-card-header">
                 <h3>Edison Zheng</h3>
-                <p>Email: ediz6207@gmail.com</p>
-                <p>LinkedIn: <a href="https://www.linkedin.com/in/edizheng">linkedin.com/in/edizheng</a></p>
-            </td>
-        </tr>
-    </table>
-    <br><br><br><br><br><br><br><br><br><br>
+            </div>
+            <div class="team-card-body">
+                <p class="team-email">📧 <a href="mailto:ediz6207@gmail.com">ediz6207@gmail.com</a></p>
+                <p class="team-linkedin">💼 <a href="https://www.linkedin.com/in/edizheng" target="_blank">linkedin.com/in/edizheng</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.contact-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 30px;
+}
+
+.contact-header {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.contact-header h1 {
+    font-size: 2.5rem;
+    color: #0b3a0b;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.contact-subtitle {
+    font-size: 1.2rem;
+    color: #666;
+    margin: 0;
+}
+
+.team-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.team-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    border: 2px solid #e0e0e0;
+}
+
+.team-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    border-color: #146b14;
+}
+
+.team-card-header h3 {
+    margin: 0 0 20px 0;
+    color: #0b3a0b;
+    font-size: 1.5rem;
+    font-weight: 700;
+    border-bottom: 3px solid #26b726;
+    padding-bottom: 10px;
+}
+
+.team-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.team-email, .team-linkedin {
+    margin: 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.team-email a, .team-linkedin a {
+    color: #146b14;
+    text-decoration: none;
+    transition: color 0.3s ease;
+    font-weight: 500;
+}
+
+.team-email a:hover, .team-linkedin a:hover {
+    color: #26b726;
+    text-decoration: underline;
+}
+
+@media (max-width: 768px) {
+    .team-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .contact-header h1 {
+        font-size: 2rem;
+    }
+}
+</style>
+
 {% endblock %}

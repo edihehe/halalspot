@@ -30,10 +30,24 @@
                     </a>
 
                     <div class="card-body restaurant-info">
-                        <h3>
+                        <h3 style="display: flex; justify-content: space-between; align-items: center;">
                             <a href="{{ url_for('restaurants.get_restaurant', id=r.id) }}">
                                 {{ r.name }}
                             </a>
+                            {% if r.avg_rating %}
+                                <span class ="stars">
+                                    {% for i in range(1,6) %}
+                                        {% if i <= r.avg_rating|round(0,'floor') %}
+                                            ★
+                                        {% else %}
+                                            ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                    ({{ r.avg_rating }})
+                                </span>
+                            {% else %}
+                                <span class="stars">No rating</span>
+                            {% endif %}
                         </h3>
                         <p class="muted">{{ r.cuisine }} — {{ r.halal_status }}</p>
                         <p>{{ r.description }}</p>
@@ -123,7 +137,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     // Hover events only on restaurant titles (<h3>)
-    document.querySelectorAll(".restaurant-card h3").forEach((title, index) => {
+    document.querySelectorAll(".restaurant-card h3 a").forEach((title, index) => {
         title.addEventListener("mouseenter", function () {
             const r = homeRestaurantsData[index];
             if (r && r.latitude && r.longitude) {
