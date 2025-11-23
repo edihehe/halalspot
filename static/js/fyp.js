@@ -2,6 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     initializeFYP();
+    setupVideoPlayback();
 });
 
 function initializeFYP() {
@@ -14,6 +15,121 @@ function initializeFYP() {
     
     // Load comments for all posts
     loadAllComments();
+}
+
+// Video playback functionality (TikTok-like)
+function setupVideoPlayback() {
+    const videos = document.querySelectorAll('.post-video');
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.5 // Play when 50% visible
+    };
+
+    const videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const video = entry.target;
+            if (entry.isIntersecting) {
+                // Play video when it comes into view (with audio)
+                video.play().catch(err => {
+                    console.log('Video autoplay prevented:', err);
+                    // If autoplay fails, show play button
+                    showPlayButton(video);
+                });
+            } else {
+                // Pause video when it goes out of view
+                video.pause();
+                showPlayButton(video);
+            }
+        });
+    }, observerOptions);
+
+    videos.forEach(video => {
+        videoObserver.observe(video);
+        
+        // Create play/pause overlay button
+        const playButton = createPlayButton(video);
+        video.parentElement.appendChild(playButton);
+        
+        // Click on video to play/pause
+        video.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleVideoPlayback(this);
+        });
+        
+        // Click on play button
+        playButton.addEventListener('click', function(e) {
+            e.stopPropagation();
+            toggleVideoPlayback(video);
+        });
+        
+        // Update play button visibility based on playback state
+        video.addEventListener('play', function() {
+            hidePlayButton(this);
+        });
+        
+        video.addEventListener('pause', function() {
+            showPlayButton(this);
+        });
+        
+        // Handle video errors
+        video.addEventListener('error', function() {
+            console.error('Video failed to load:', this.src);
+            // Fallback to poster image or hide video
+            const poster = this.getAttribute('poster');
+            if (poster) {
+                const img = document.createElement('img');
+                img.src = poster;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                this.parentNode.replaceChild(img, this);
+            }
+        });
+    });
+}
+
+// Toggle video playback
+function toggleVideoPlayback(video) {
+    if (video.paused) {
+        video.play().then(() => {
+            hidePlayButton(video);
+        }).catch(err => {
+            console.log('Video play failed:', err);
+            showPlayButton(video);
+        });
+    } else {
+        video.pause();
+        showPlayButton(video);
+    }
+}
+
+// Create play button overlay
+function createPlayButton(video) {
+    const button = document.createElement('div');
+    button.className = 'video-play-button';
+    button.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="white" width="64" height="64">
+            <path d="M8 5v14l11-7z"/>
+        </svg>
+    `;
+    return button;
+}
+
+// Show play button
+function showPlayButton(video) {
+    const button = video.parentElement.querySelector('.video-play-button');
+    if (button) {
+        button.style.display = 'flex';
+    }
+}
+
+// Hide play button
+function hidePlayButton(video) {
+    const button = video.parentElement.querySelector('.video-play-button');
+    if (button) {
+        button.style.display = 'none';
+    }
 }
 
 // Like functionality

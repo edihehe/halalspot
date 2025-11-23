@@ -164,6 +164,7 @@ def insert_demo_content(app):
                     "title": "🔥 Halal Guys Gyro Platter",
                     "description": "The most iconic halal street food in Philly! White sauce, red sauce, and perfectly seasoned chicken over rice. A must-try! 🍗✨",
                     "image_url": "/static/images/halalGuy.png",
+                    "video_url": "/static/videos/halalguys.mp4",
                     "likes_count": 1247,
                     "comments_count": 89,
                     "shares_count": 234,
@@ -171,32 +172,11 @@ def insert_demo_content(app):
                     "order_url": f"/restaurants/{restaurants[0].id}" if restaurants else None
                 },
                 {
-                    "restaurant_id": restaurants[1].id if len(restaurants) > 1 else None,
-                    "title": "Spicy Hot Chicken Tenders",
-                    "description": "Dave's Hot Chicken never disappoints! 🔥 These tenders are perfectly crispy with just the right amount of heat. Halal certified!",
-                    "image_url": "/static/images/daves.jpg",
-                    "likes_count": 892,
-                    "comments_count": 45,
-                    "shares_count": 123,
-                    "saves_count": 98,
-                    "order_url": f"/restaurants/{restaurants[1].id}" if len(restaurants) > 1 else None
-                },
-                {
-                    "restaurant_id": restaurants[2].id if len(restaurants) > 2 else None,
-                    "title": "Classic Fried Chicken",
-                    "description": "Crown Fried Chicken hits different! 🍗 Crispy, juicy, and 100% halal. Perfect for late-night cravings!",
-                    "image_url": "/static/images/crown.png",
-                    "likes_count": 654,
-                    "comments_count": 32,
-                    "shares_count": 87,
-                    "saves_count": 67,
-                    "order_url": f"/restaurants/{restaurants[2].id}" if len(restaurants) > 2 else None
-                },
-                {
                     "restaurant_id": restaurants[3].id if len(restaurants) > 3 else None,
                     "title": "Nashville Hot Chicken",
                     "description": "Asad's Hot Chicken bringing the heat! 🌶️ Nashville-style halal chicken that's absolutely fire!",
                     "image_url": "/static/images/asad.png",
+                    "video_url": "/static/videos/asads.mp4",
                     "likes_count": 1123,
                     "comments_count": 78,
                     "shares_count": 189,
@@ -208,6 +188,7 @@ def insert_demo_content(app):
                     "title": "Shawarma Platter",
                     "description": "Saad's Halal Restaurant serving up authentic shawarma! 🥙 Fresh, flavorful, and always halal certified.",
                     "image_url": "/static/images/saad.png",
+                    "video_url": "/static/videos/saads.mp4",
                     "likes_count": 987,
                     "comments_count": 56,
                     "shares_count": 145,
@@ -215,77 +196,12 @@ def insert_demo_content(app):
                     "order_url": f"/restaurants/{restaurants[4].id}" if len(restaurants) > 4 else None
                 },
                 {
-                    "restaurant_id": restaurants[5].id if len(restaurants) > 5 else None,
-                    "title": "Gyro & Platters",
-                    "description": "Pasha's bringing the food truck vibes to brick-and-mortar! 🚚 Temple-famous halal platters that never miss!",
-                    "image_url": "/static/images/pashas.jpg",
-                    "likes_count": 756,
-                    "comments_count": 41,
-                    "shares_count": 98,
-                    "saves_count": 89,
-                    "order_url": f"/restaurants/{restaurants[5].id}" if len(restaurants) > 5 else None
-                },
-                {
-                    "restaurant_id": restaurants[6].id if len(restaurants) > 6 else None,
-                    "title": "Fresh Flatbreads & Shawarma",
-                    "description": "Manakeesh Cafe with authentic Lebanese flavors! 🥖 Fresh baked flatbreads and perfectly seasoned shawarma.",
-                    "image_url": "/static/images/manakeesh.jpg",
-                    "likes_count": 834,
-                    "comments_count": 52,
-                    "shares_count": 112,
-                    "saves_count": 95,
-                    "order_url": f"/restaurants/{restaurants[6].id}" if len(restaurants) > 6 else None
-                },
-                {
-                    "restaurant_id": restaurants[7].id if len(restaurants) > 7 else None,
-                    "title": "Ethiopian-Inspired Fried Chicken",
-                    "description": "Doro Bet bringing unique flavors! 🍗 Ethiopian spices meet crispy fried chicken. Gluten-free and halal-friendly!",
-                    "image_url": "/static/images/dorobet.jpg",
-                    "likes_count": 623,
-                    "comments_count": 38,
-                    "shares_count": 76,
-                    "saves_count": 71,
-                    "order_url": f"/restaurants/{restaurants[7].id}" if len(restaurants) > 7 else None
-                },
-                {
-                    "restaurant_id": restaurants[8].id if len(restaurants) > 8 else None,
-                    "title": "BBQ Kabobs & Naan",
-                    "description": "Kabobeesh serving authentic Pakistani BBQ! 🔥 Tender kabobs, fresh naan, and homestyle curries. All halal!",
-                    "image_url": "/static/images/kabobeesh.jpg",
-                    "likes_count": 945,
-                    "comments_count": 64,
-                    "shares_count": 134,
-                    "saves_count": 108,
-                    "order_url": f"/restaurants/{restaurants[8].id}" if len(restaurants) > 8 else None
-                },
-                {
-                    "restaurant_id": restaurants[9].id if len(restaurants) > 9 else None,
-                    "title": "Smash Burgers & Wings",
-                    "description": "Halal Fusionz with Philly-fusion flavors! 🍔 Smash burgers, wings, and tenders that hit every time!",
-                    "image_url": "/static/images/halalfusionz.jpg",
-                    "likes_count": 1102,
-                    "comments_count": 72,
-                    "shares_count": 167,
-                    "saves_count": 142,
-                    "order_url": f"/restaurants/{restaurants[9].id}" if len(restaurants) > 9 else None
-                },
-                {
-                    "restaurant_id": restaurants[10].id if len(restaurants) > 10 else None,
-                    "title": "Biryani & Tandoori",
-                    "description": "Sahara Indian Cuisine with authentic flavors! 🍛 Rich biryani, tender tandoori, and flavorful curries.",
-                    "image_url": "/static/images/sahara.jpg",
-                    "likes_count": 789,
-                    "comments_count": 48,
-                    "shares_count": 101,
-                    "saves_count": 93,
-                    "order_url": f"/restaurants/{restaurants[10].id}" if len(restaurants) > 10 else None
-                },
-                {
                     "creator_name": "HalalFoodie_Philly",
                     "is_sponsored": True,
                     "title": "Hidden Gem: Best Halal Spot in West Philly",
                     "description": "Just discovered this amazing spot! The shawarma here is incredible and the prices are unbeatable. Definitely check it out! 🎯",
                     "image_url": "/static/images/saad.png",
+                    "video_url": "/static/videos/IMG_4123.mp4",
                     "likes_count": 2341,
                     "comments_count": 156,
                     "shares_count": 289,
@@ -301,7 +217,8 @@ def insert_demo_content(app):
                     is_sponsored=c.get("is_sponsored", False),
                     title=c["title"],
                     description=c["description"],
-                    image_url=c["image_url"],
+                    image_url=c.get("image_url"),  # Keep as poster/thumbnail
+                    video_url=c.get("video_url"),  # Add video URL
                     likes_count=c["likes_count"],
                     comments_count=c["comments_count"],
                     shares_count=c["shares_count"],

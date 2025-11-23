@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/restaurant.css') }}">
+
+<div class="restaurant-profile">
+    <!-- Hero Section -->
+    <div class="restaurant-hero">
+        <div class="hero-image">
+            <img src="{{ restaurant.image_url or url_for('static', filename='images/rest_images.jpg') }}" alt="{{ restaurant.name }}" />
+        </div>
+        <div class="hero-overlay">
+            <div class="hero-content">
+                <h1>{{ restaurant.name }}</h1>
+                <p class="hero-cuisine">{{ restaurant.cuisine }} • {{ restaurant.halal_status }}</p>
+                {% if avg_rating %}
+                <div class="hero-rating">
+                    <span class="stars">
+                        {% for i in range(1,6) %}
+                            {% if i <= avg_rating|round(0,'floor') %}
+                                ★
+                            {% else %}
+                                ☆
+                            {% endif %}
+                        {% endfor %}
+                    </span>
+                    <span class="rating-text">{{ avg_rating }} / 5.0</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="restaurant-main">
+        <div class="restaurant-info-section">
+            <!-- About Section -->
+            <div class="info-card">
+                <h2>About</h2>
+                <p>{{ restaurant.description }}</p>
+                
+                <div class="info-details">
+                    <div class="info-item">
+                        <strong>Cuisine:</strong> {{ restaurant.cuisine }}
+                    </div>
+                    <div class="info-item">
+                        <strong>Halal Status:</strong> 
+                        <span class="halal-badge">{{ restaurant.halal_status }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location Section -->
+            <div class="info-card">
+                <h2>Location</h2>
+                <p class="address">{{ restaurant.address }}</p>
+                <div id="restaurant-map" class="restaurant-map"></div>
+                <div class="map-actions">
+                    <a href="https://www.google.com/maps/search/?api=1&query={{ restaurant.latitude }},{{ restaurant.longitude }}" 
+                       target="_blank" 
+                       class="map-link-btn">
+                        📍 Open in Google Maps
+                    </a>
+                </div>
+            </div>
+
+            <!-- Reviews Section -->
+            <div class="info-card">
+                <h2>Reviews ({{ reviews|length }})</h2>
+                {% if reviews %}
+                    <div class="reviews-list">
+                        {% for review in reviews %}
+                        <div class="review-item">
+                            <div class="review-header">
+                                <div class="review-rating">
+                                    {% for i in range(1,6) %}
+                                        {% if i <= review.rating %}
+                                            ★
+                                        {% else %}
+                                            ☆
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="rating-number">({{ review.rating }}/5)</span>
+                                </div>
+                                <span class="review-date">{{ review.date.strftime('%B %d, %Y') if review.date else '' }}</span>
+                            </div>
+                            {% if review.comment %}
+                            <p class="review-text">{{ review.comment }}</p>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="no-reviews">No reviews yet. Be the first to review!</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Videos/Content Section -->
+        <div class="restaurant-content-section">
+            <div class="content-header">
+                <h2>Videos & Content</h2>
+                <p class="content-count">{{ contents|length }} {{ 'video' if contents|length == 1 else 'videos' }}</p>
+            </div>
+
+            {% if contents %}
+            <div class="content-grid">
+                {% for content in contents %}
+                <div class="content-card" data-content-id="{{ content.id }}">
+                    {% if content.video_url %}
+                    <div class="content-media video-media">
+                        <video 
+                            class="content-video"
+                            loop 
+                            muted 
+                            playsinline
+                            preload="metadata"
+                            poster="{{ content.image_url or url_for('static', filename='images/rest_images.jpg') }}">
+                            {% if content.video_url.endswith('.mp4') or 'mp4' in content.video_url %}
+                            <source src="{{ content.video_url }}" type="video/mp4" />
+                            {% elif content.video_url.endswith('.webm') or 'webm' in content.video_url %}
+                            <source src="{{ content.video_url }}" type="video/webm" />
+                            {% elif content.video_url.endswith('.ogg') or 'ogg' in content.video_url %}
+                            <source src="{{ content.video_url }}" type="video/ogg" />
+                            {% else %}
+                            <source src="{{ content.video_url }}" type="video/mp4" />
+                            {% endif %}
+                        </video>
+                        <div class="play-overlay">
+                            <svg viewBox="0 0 24 24" fill="white" width="48" height="48">
+                                <path d="M8 5v14l11-7z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    {% else %}
+                    <div class="content-media image-media">
+                        <img src="{{ content.image_url or url_for('static', filename='images/rest_images.jpg') }}" alt="{{ content.title }}" />
+                    </div>
+                    {% endif %}
+                    
+                    <div class="content-info">
+                        <h3>{{ content.title }}</h3>
+                        <p>{{ content.description }}</p>
+                        <div class="content-stats">
+                            <span>❤️ {{ content.likes_count }}</span>
+                            <span>💬 {{ content.comments_count }}</span>
+                            <span>🔗 {{ content.shares_count }}</span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="no-content">
+                <p>No videos or content yet. Check back soon!</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Order Button (Fixed) -->
+    <div class="order-button-fixed">
+        <button class="order-now-btn" onclick="window.location.href='#order'">
+            🛒 Order Now
+        </button>
+    </div>
+</div>
+
+<!-- Leaflet CSS + JS for Map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+// Initialize map
+document.addEventListener("DOMContentLoaded", function () {
+    const restaurant = {
+        name: "{{ restaurant.name }}",
+        address: "{{ restaurant.address }}",
+        latitude: {{ restaurant.latitude }},
+        longitude: {{ restaurant.longitude }}
+    };
+
+    if (restaurant.latitude && restaurant.longitude) {
+        const map = L.map("restaurant-map").setView([restaurant.latitude, restaurant.longitude], 15);
+
+        L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+            maxZoom: 19,
+            attribution: "&copy; OpenStreetMap contributors",
+        }).addTo(map);
+
+        const marker = L.marker([restaurant.latitude, restaurant.longitude]).addTo(map);
+        marker.bindPopup(`
+            <strong>${restaurant.name}</strong><br/>
+            ${restaurant.address}
+        `).openPopup();
+    }
+
+    // Video play/pause on click
+    document.querySelectorAll('.content-video').forEach(video => {
+        const card = video.closest('.content-card');
+        const overlay = card.querySelector('.play-overlay');
+        
+        video.addEventListener('click', function() {
+            if (this.paused) {
+                this.play();
+                if (overlay) overlay.style.display = 'none';
+            } else {
+                this.pause();
+                if (overlay) overlay.style.display = 'flex';
+            }
+        });
+
+        video.addEventListener('play', function() {
+            if (overlay) overlay.style.display = 'none';
+        });
+
+        video.addEventListener('pause', function() {
+            if (overlay) overlay.style.display = 'flex';
+        });
+    });
+});
+</script>
+
+{% endblock %}
+

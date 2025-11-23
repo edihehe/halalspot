@@ -11,6 +11,7 @@ Handles views for:
 from flask import Blueprint, request, render_template
 from models.restaurant import Restaurant
 from models.review import Review
+from models.content import Content
 
 restaurant_bp = Blueprint("restaurants", __name__)
 
@@ -25,13 +26,28 @@ def list_restaurants():
 @restaurant_bp.route("/restaurants/<int:id>")
 def get_restaurant(id):
     """
-    Restaurant detail page.
-    Loads the restaurant and its reviews.
+    Restaurant profile page.
+    Loads the restaurant, its reviews, and associated content/videos.
     """
     restaurant = Restaurant.query.get_or_404(id)
     # Fetch reviews associated with this restaurant
     reviews = Review.query.filter_by(restaurant_id=id).order_by(Review.date.desc()).all()
-    return render_template("restaurant.html", restaurant=restaurant, reviews=reviews)
+    # Fetch content/videos associated with this restaurant
+    contents = Content.query.filter_by(restaurant_id=id).order_by(Content.created_at.desc()).all()
+    contents_data = [c.to_dict() for c in contents]
+    
+    # Calculate average rating
+    avg_rating = None
+    if reviews:
+        avg_rating = round(sum([r.rating for r in reviews]) / len(reviews), 1)
+    
+    return render_template(
+        "restaurant.html", 
+        restaurant=restaurant, 
+        reviews=reviews,
+        contents=contents_data,
+        avg_rating=avg_rating
+    )
 
 @restaurant_bp.route("/restaurants/search")
 def search_restaurants():
