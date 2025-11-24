@@ -1,1 +1,1 @@
-<a href="halalspot.onrender.com"> HalalSpot.com </a>
+<a href="https://halalspot.onrender.com"> HalalSpot.com </a>
